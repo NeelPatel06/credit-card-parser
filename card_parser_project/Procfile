@@ -1,0 +1,1 @@
+web: gunicorn card_parser_project.wsgi:application

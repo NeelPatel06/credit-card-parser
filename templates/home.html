@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Parser - Futuristic Upload</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b4e 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .main-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 50;
+            position: relative;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        inset 0 0 40px rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glow-border {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00f5ff, #ff00ff, #00ff88, #ffaa00);
+            border-radius: 30px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.5s;
+            animation: rotate 4s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .container:hover .glow-border {
+            opacity: 0.6;
+        }
+
+        h1 {
+            color: #00f5ff;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5),
+                         0 0 40px rgba(0, 245, 255, 0.3);
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(0, 245, 255, 0.5); }
+            50% { text-shadow: 0 0 40px rgba(0, 245, 255, 0.8); }
+        }
+
+        .subtitle {
+            color: #a0a0ff;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+
+        .upload-zone {
+            border: 3px dashed rgba(0, 245, 255, 0.4);
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: rgba(0, 245, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-zone::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 245, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .upload-zone:hover::before {
+            opacity: 1;
+        }
+
+        .upload-zone:hover {
+            border-color: #00f5ff;
+            background: rgba(0, 245, 255, 0.08);
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0, 245, 255, 0.3);
+        }
+
+        .upload-zone.dragover {
+            border-color: #ff00ff;
+            background: rgba(255, 0, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .upload-text {
+            color: #ffffff;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #a0a0ff;
+            font-size: 0.9em;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 30px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInFile 0.4s ease-out;
+        }
+
+        @keyframes slideInFile {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .file-name {
+            color: #ffffff;
+            font-size: 0.95em;
+        }
+
+        .file-size {
+            color: #a0a0ff;
+            font-size: 0.85em;
+        }
+
+        .remove-btn {
+            background: rgba(255, 50, 100, 0.3);
+            border: 1px solid rgba(255, 50, 100, 0.5);
+            color: #ff6b9d;
+            padding: 5px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: rgba(255, 50, 100, 0.6);
+            transform: scale(1.1);
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #00f5ff, #00c3ff);
+            border: none;
+            color: #0a0e27;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-top: 30px;
+            width: 100%;
+            transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 245, 255, 0.5);
+            background: linear-gradient(135deg, #00ff88, #00f5ff);
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        .upload-btn:disabled {
+            background: rgba(100, 100, 100, 0.5);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #00f5ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="main-wrapper">
+        <div class="container">
+            <div class="glow-border"></div>
+            <h1>📊 Credit Card Parser</h1>
+            <p class="subtitle">Upload PDF, CSV, or JSON files for instant parsing</p>
+
+            <form id="uploadForm" enctype="multipart/form-data">
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon">☁️</div>
+                    <div class="upload-text">Drop files here or click to browse</div>
+                    <div class="upload-subtext">Supports: PDF, CSV, JSON (Multiple files allowed)</div>
+                    <input type="file" id="fileInput" name="files" multiple accept=".pdf,.csv,.json">
+                </div>
+
+                <div class="file-list" id="fileList"></div>
+
+                <button type="submit" class="upload-btn" id="uploadBtn" disabled>
+                    🚀 Parse Files
+                </button>
+
+                <div class="loader" id="loader"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loader = document.getElementById('loader');
+
+        let selectedFiles = [];
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            for (let file of files) {
+                if (file.type === 'application/pdf' || 
+                    file.type === 'text/csv' || 
+                    file.type === 'application/json' ||
+                    file.name.endsWith('.csv') ||
+                    file.name.endsWith('.json')) {
+                    selectedFiles.push(file);
+                }
+            }
+            updateFileList();
+            uploadBtn.disabled = selectedFiles.length === 0;
+        }
+
+        function updateFileList() {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${(file.size / 1024).toFixed(2)} KB</div>
+                    </div>
+                    <button type="button" class="remove-btn" onclick="removeFile(${index})">✕</button>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            uploadBtn.disabled = selectedFiles.length === 0;
+        }
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (selectedFiles.length === 0) return;
+
+            const formData = new FormData();
+            selectedFiles.forEach(file => {
+                formData.append('files', file);
+            });
+
+            uploadBtn.disabled = true;
+            loader.classList.add('active');
+
+            try {
+                const response = await fetch('/upload/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('Error: ' + (data.error || 'Upload failed'));
+                    loader.classList.remove('active');
+                    uploadBtn.disabled = false;
+                }
+            } catch (error) {
+                alert('Upload failed: ' + error.message);
+                loader.classList.remove('active');
+                uploadBtn.disabled = false;
+            }
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

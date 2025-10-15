@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parsed Results - Credit Card Parser</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2d1b4e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #00f5ff;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.5);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            color: #00ff88;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+        }
+
+        .stat-label {
+            color: #a0a0ff;
+            margin-top: 5px;
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #ff00ff, #ff6b9d);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            margin-top: 20px;
+            display: inline-block;
+            text-decoration: none;
+            box-shadow: 0 5px 20px rgba(255, 0, 255, 0.3);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 0, 255, 0.5);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(0, 245, 255, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        thead tr {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.2), rgba(0, 195, 255, 0.2));
+            border-radius: 12px;
+        }
+
+        th {
+            color: #00f5ff;
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+        }
+
+        th:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        tbody tr {
+            background: rgba(255, 255, 255, 0.03);
+            transition: all 0.3s;
+            border-radius: 12px;
+            animation: slideInRow 0.5s ease-out backwards;
+        }
+
+        tbody tr:nth-child(1) { animation-delay: 0.1s; }
+        tbody tr:nth-child(2) { animation-delay: 0.2s; }
+        tbody tr:nth-child(3) { animation-delay: 0.3s; }
+        tbody tr:nth-child(4) { animation-delay: 0.4s; }
+        tbody tr:nth-child(5) { animation-delay: 0.5s; }
+
+        @keyframes slideInRow {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        tbody tr:hover {
+            background: rgba(0, 245, 255, 0.1);
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(0, 245, 255, 0.2);
+        }
+
+        td {
+            color: #ffffff;
+            padding: 18px 15px;
+            border: none;
+        }
+
+        td:first-child {
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+        }
+
+        td:last-child {
+            border-top-right-radius: 12px;
+            border-bottom-right-radius: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-issuer {
+            background: linear-gradient(135deg, #00f5ff, #00c3ff);
+            color: #0a0e27;
+        }
+
+        .badge-card {
+            background: linear-gradient(135deg, #ff00ff, #ff6b9d);
+            color: white;
+        }
+
+        .badge-variant {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0a0e27;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0ff;
+        }
+
+        .empty-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+
+            th, td {
+                padding: 12px 8px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>✨ Parsed Results</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value">{{ total_files }}</div>
+                    <div class="stat-label">Files Processed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ parsed_data.count }}</div>
+                    <div class="stat-label">Records Extracted</div>
+                </div>
+            </div>
+            <center>
+                <a href="/" class="back-btn">← Upload More Files</a>
+            </center>
+        </div>
+
+        <div class="table-container">
+            {% if parsed_data %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Card Issuer</th>
+                        <th>Card Last 4</th>
+                        <th>Card Variant</th>
+                        <th>Billing Cycle</th>
+                        <th>Due Date</th>
+                        <th>Total Balance</th>
+                        <th>Transactions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in parsed_data %}
+                    <tr>
+                        <td>
+                            {% if data.card_issuer %}
+                            <span class="badge badge-issuer">{{ data.card_issuer }}</span>
+                            {% else %}
+                            <span style="color: #666;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data.card_last_4 %}
+                            <span class="badge badge-card">•••• {{ data.card_last_4 }}</span>
+                            {% else %}
+                            <span style="color: #666;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if data.card_variant %}
+                            <span class="badge badge-variant">{{ data.card_variant }}</span>
+                            {% else %}
+                            <span style="color: #666;">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ data.billing_cycle|default:"N/A" }}</td>
+                        <td>{{ data.payment_due_date|default:"N/A" }}</td>
+                        <td>
+                            {% if data.total_balance %}
+                            ₹ {{ data.total_balance }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ data.transaction_count }} txns</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h2>No Data Found</h2>
+                <p>No records were parsed from the uploaded files.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    </script>
+</body>
+</html>

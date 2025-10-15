@@ -1,0 +1,9 @@
+{
+  "card_issuer": "ICICI Bank",
+  "card_number": "xxxx-xxxx-xxxx-1234",
+  "variant": "Gold Card",
+  "billing_cycle": "05 Sep 2024 to 04 Oct 2024",
+  "due_date": "20-10-2024",
+  "balance": "32500.75",
+  "transaction_count": 18
+}
