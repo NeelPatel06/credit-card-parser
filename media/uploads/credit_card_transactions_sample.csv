@@ -1,0 +1,4 @@
+transaction_id,date,amount,merchant,card_last4
+1,2024-01-05,23.50,Store A,1234
+2,2024-01-10,150.00,Store B,5678
+3,2024-01-12,9.99,Store C,9012
